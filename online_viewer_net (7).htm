@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Car Racing Game</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.game-container {
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.game {
+    width: 400px;
+    height: 700px;
+    background: linear-gradient(to bottom, #333 0%, #444 100%);
+    position: relative;
+    overflow: hidden;
+    border-left: 8px dashed #f1c40f;
+    border-right: 8px dashed #f1c40f;
+}
+
+/* Road Line Styling */
+.road-line {
+    position: absolute;
+    width: 8px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.8);
+    left: 196px;
+    border-radius: 4px;
+}
+
+/* Player Car Styling */
+.car {
+    width: 50px;
+    height: 90px;
+    position: absolute;
+    bottom: 40px;
+    left: 175px;
+    z-index: 5;
+    filter: drop-shadow(0 8px 6px rgba(0,0,0,0.4));
+    transition: transform 0.1s;
+    /* Modern Red sports car SVG */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 90'><defs><linearGradient id='bodyGrad' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23ff3333'/><stop offset='50%' stop-color='%23ff6666'/><stop offset='100%' stop-color='%23990000'/></linearGradient></defs><rect x='2' y='18' width='5' height='14' rx='2' fill='%23111'/><rect x='43' y='18' width='5' height='14' rx='2' fill='%23111'/><rect x='2' y='58' width='5' height='14' rx='2' fill='%23111'/><rect x='43' y='58' width='5' height='14' rx='2' fill='%23111'/><path d='M 10,80 L 40,80 L 38,85 L 12,85 Z' fill='%23111'/><path d='M 8,15 Q 25,5 42,15 L 44,75 Q 25,82 6,75 Z' fill='url(%23bodyGrad)'/><rect x='12' y='32' width='26' height='15' rx='4' fill='%231a252f'/><path d='M 14,32 L 36,32 L 33,24 L 17,24 Z' fill='%23d5dbdb' opacity='0.8'/><ellipse cx='12' cy='18' rx='3' ry='5' fill='%23f39c12' opacity='0.9'/><ellipse cx='38' cy='18' rx='3' ry='5' fill='%23f39c12' opacity='0.9'/><rect x='10' y='74' width='6' height='3' fill='%23e74c3c'/><rect x='34' y='74' width='6' height='3' fill='%23e74c3c'/></svg>");
+    background-size: cover;
+}
+
+/* Enemy Car Styling */
+.enemy {
+    width: 50px;
+    height: 90px;
+    position: absolute;
+    z-index: 4;
+    filter: drop-shadow(0 6px 5px rgba(0,0,0,0.4));
+}
+
+/* Yellow and Blue modern sports cars generated via SVG classes */
+.enemy-yellow {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 90'><defs><linearGradient id='yGrad' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%23f1c40f'/><stop offset='50%' stop-color='%23ffeaa7'/><stop offset='100%' stop-color='%23d35400'/></linearGradient></defs><rect x='2' y='18' width='5' height='14' rx='2' fill='%23111'/><rect x='43' y='18' width='5' height='14' rx='2' fill='%23111'/><rect x='2' y='58' width='5' height='14' rx='2' fill='%23111'/><rect x='43' y='58' width='5' height='14' rx='2' fill='%23111'/><path d='M 8,15 Q 25,5 42,15 L 44,75 Q 25,82 6,75 Z' fill='url(%23yGrad)'/><rect x='12' y='32' width='26' height='15' rx='4' fill='%232c3e50'/><path d='M 14,32 L 36,32 L 33,24 L 17,24 Z' fill='%23ecf0f1' opacity='0.7'/><ellipse cx='12' cy='18' rx='3' ry='5' fill='%23ffffff' opacity='0.9'/><ellipse cx='38' cy='18' rx='3' ry='5' fill='%23ffffff' opacity='0.9'/></svg>");
+    background-size: cover;
+}
+
+.enemy-blue {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 90'><defs><linearGradient id='bGrad' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='%230984e3'/><stop offset='50%' stop-color='%2374b9ff'/><stop offset='100%' stop-color='%23273c75'/></linearGradient></defs><rect x='2' y='18' width='5' height='14' rx='2' fill='%23111'/><rect x='43' y='18' width='5' height='14' rx='2' fill='%23111'/><rect x='2' y='58' width='5' height='14' rx='2' fill='%23111'/><rect x='43' y='58' width='5' height='14' rx='2' fill='%23111'/><path d='M 8,15 Q 25,5 42,15 L 44,75 Q 25,82 6,75 Z' fill='url(%23bGrad)'/><rect x='12' y='32' width='26' height='15' rx='4' fill='%232c3e50'/><path d='M 14,32 L 36,32 L 33,24 L 17,24 Z' fill='%23ecf0f1' opacity='0.7'/><ellipse cx='12' cy='18' rx='3' ry='5' fill='%23ffffff' opacity='0.9'/><ellipse cx='38' cy='18' rx='3' ry='5' fill='%23ffffff' opacity='0.9'/></svg>");
+    background-size: cover;
+}
+
+.score {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(5px);
+    z-index: 10;
+}
+
+.startScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    padding: 20px;
+    z-index: 20;
+    transition: background 0.3s;
+}
+
+.start-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 25px;
+    background: #e74c3c;
+    color: white;
+    font-weight: bold;
+    border-radius: 25px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+.start-btn:hover {
+    background: #ff4757;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-container">
+    <div class="game">
+        <div class="score">Score: 0</div>
+        <div class="startScreen">
+            <div>
+                <h2 style="font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">VeloCity Racing</h2>
+                <p style="color: #bbb; margin: 10px 0;">Avoid incoming traffic and survive!</p>
+                <div class="start-btn">Click to Start</div>
+                <br><br>
+                <div style="font-size: 13px; color: #888;">
+                    Use <b>← Left</b> and <b>Right →</b> Keys to steer
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const game = document.querySelector(".game");
+const score = document.querySelector(".score");
+const startScreen = document.querySelector(".startScreen");
+
+let player = {
+    speed: 6,
+    score: 0,
+    start: false
+};
+
+let keys = {
+    ArrowLeft: false,
+    ArrowRight: false
+};
+
+// Web Audio API Synth Engine
+let audioCtx;
+let engineOsc, engineGain;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function startEngineSound() {
+    initAudio();
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    
+    // Low-frequency sawtooth generator for roaring engine sound
+    engineOsc = audioCtx.createOscillator();
+    engineGain = audioCtx.createGain();
+    
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 280; // Filter high buzzing harshness
+
+    engineOsc.type = 'sawtooth';
+    engineOsc.frequency.value = 55; // Base low rumble idle
+    
+    engineOsc.connect(filter);
+    filter.connect(engineGain);
+    engineGain.connect(audioCtx.destination);
+    
+    engineGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    engineOsc.start();
+}
+
+function stopEngineSound() {
+    if (engineOsc) {
+        try {
+            engineOsc.stop();
+            engineOsc.disconnect();
+        } catch(e){}
+        engineOsc = null;
+    }
+}
+
+function playScoreSound() {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+    osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.06);
+    
+    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
+}
+
+function playCrashSound() {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(15, audioCtx.currentTime + 0.8);
+    
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.8);
+}
+
+document.addEventListener("keydown", keyDown);
+document.addEventListener("keyup", keyUp);
+
+function keyDown(e) {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        keys[e.key] = true;
+    }
+}
+
+function keyUp(e) {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        keys[e.key] = false;
+    }
+}
+
+startScreen.addEventListener("click", startGame);
+
+function startGame() {
+    startScreen.style.display = "none";
+    
+    // Clear old elements without destroying the score text & start menu structure
+    document.querySelectorAll(".road-line, .car, .enemy").forEach(el => el.remove());
+
+    player.start = true;
+    player.score = 0;
+    score.innerHTML = "Score: 0";
+    
+    startEngineSound();
+
+    // Create moving road lines
+    for (let i = 0; i < 6; i++) {
+        let line = document.createElement("div");
+        line.classList.add("road-line");
+        line.y = i * 130;
+        line.style.top = line.y + "px";
+        game.appendChild(line);
+    }
+
+    // Create player car
+    let car = document.createElement("div");
+    car.classList.add("car");
+    game.appendChild(car);
+
+    player.x = car.offsetLeft;
+    player.y = car.offsetTop;
+
+    // Create dynamic traffic cars
+    for (let i = 0; i < 3; i++) {
+        let enemy = document.createElement("div");
+        // Randomly assign a modern color style
+        const colorClass = Math.random() > 0.5 ? "enemy-yellow" : "enemy-blue";
+        enemy.classList.add("enemy", colorClass);
+        enemy.y = ((i + 1) * -240);
+        enemy.style.top = enemy.y + "px";
+        enemy.style.left = Math.floor(Math.random() * 330) + "px";
+        game.appendChild(enemy);
+    }
+
+    window.requestAnimationFrame(playGame);
+}
+
+function moveLines() {
+    let lines = document.querySelectorAll(".road-line");
+    lines.forEach(function (item) {
+        if (item.y >= 700) {
+            item.y = -80;
+        }
+        item.y += player.speed;
+        item.style.top = item.y + "px";
+    });
+}
+
+function isCollide(a, b) {
+    let aRect = a.getBoundingClientRect();
+    let bRect = b.getBoundingClientRect();
+
+    return !(
+        aRect.bottom < bRect.top + 5 || // Padding to make collisions feel fair
+        aRect.top > bRect.bottom - 5 ||
+        aRect.right < bRect.left + 5 ||
+        aRect.left > bRect.right - 5
+    );
+}
+
+function moveEnemy(car) {
+    let enemies = document.querySelectorAll(".enemy");
+    enemies.forEach(function (item) {
+        if (isCollide(car, item)) {
+            endGame();
+        }
+
+        if (item.y >= 700) {
+            item.y = -220;
+            item.style.left = Math.floor(Math.random() * 330) + "px";
+            // Randomly swap design when recycling cars
+            item.className = "enemy " + (Math.random() > 0.5 ? "enemy-yellow" : "enemy-blue");
+            playScoreSound();
+        }
+
+        item.y += player.speed + 1.5;
+        item.style.top = item.y + "px";
+    });
+}
+
+function playGame() {
+    if (!player.start) return;
+
+    let car = document.querySelector(".car");
+    moveLines();
+    moveEnemy(car);
+
+    // Car physics steering logic
+    let steeringSpeed = player.speed + 1.5;
+    if (keys.ArrowLeft && player.x > 10) {
+        player.x -= steeringSpeed;
+        car.style.transform = "rotate(-5deg)"; // Slight roll effect
+    } else if (keys.ArrowRight && player.x < 326) {
+        player.x += steeringSpeed;
+        car.style.transform = "rotate(5deg)";
+    } else {
+        car.style.transform = "rotate(0deg)";
+    }
+
+    car.style.left = player.x + "px";
+
+    player.score++;
+    score.innerHTML = "Score: " + player.score;
+    
+    // Modify engine synth pitch based on acceleration
+    if (engineOsc && audioCtx) {
+        let currentPitch = 55 + (player.score * 0.05); 
+        // Cap engine pitch
+        if (currentPitch > 180) currentPitch = 150 + Math.sin(player.score * 0.1) * 5;
+        engineOsc.frequency.setValueAtTime(currentPitch, audioCtx.currentTime);
+    }
+
+    window.requestAnimationFrame(playGame);
+}
+
+function endGame() {
+    player.start = false;
+    stopEngineSound();
+    playCrashSound();
+
+    startScreen.innerHTML = `
+        <div>
+            <h2 style="font-size: 32px; color: #ff4757; text-transform: uppercase;">Game Over</h2>
+            <p style="font-size: 18px; margin: 15px 0 25px;">Final Score: <b style="color: #f1c40f">${player.score}</b></p>
+            <div class="start-btn">Play Again</div>
+        </div>
+    `;
+    startScreen.style.display = "flex";
+}
+</script>
+
+</body>
+</html>
